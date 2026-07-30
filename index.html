@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -133,7 +133,7 @@
 <!-- ENCABEZADO SOLICITADO -->
 <header class="top-header">
     <h1>SERVICIO DE TRÁFICO MARÍTIMO</h1>
-    <p>HERRAMIENTAS OPERATIVAS</p>
+    <p>HERRAMIENTAS</p>
 </header>
 
 <div class="container">
@@ -141,13 +141,13 @@
     <div class="tabs-nav">
         <button class="tab-btn active" onclick="openTab(event, 'tab-kml')">📌 Polígono KML</button>
         <button class="tab-btn" onclick="openTab(event, 'tab-coords')">🗺️ Conversor Coordenadas</button>
-        <button class="tab-btn" onclick="openTab(event, 'tab-estima')">🧭 Navegación y Estima</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-estima')">🧭 Calculadora ETA</button>
         <button class="tab-btn" onclick="openTab(event, 'tab-video')">🎬 Conversor Video MP4</button>
     </div>
 
     <!-- TAB 1: POLIGONO KML -->
     <div id="tab-kml" class="tab-content active">
-        <p style="color: #555; font-size: 14px; margin-bottom: 15px;">Ingrese los puntos del área en formato Grados, Minutos y Segundos. Seleccione el color deseado para el polígono y presione el botón verde para descargar el archivo directo para Google Earth.</p>
+        <p style="color: #555; font-size: 14px; margin-bottom: 15px;">Ingrese los puntos del área en formato Grados, Minutos y Segundos. Seleccione el color deseado para el polígono y presione el botón verde para descargar el archivo.</p>
         
         <table id="tabla-puntos">
             <thead>
@@ -291,7 +291,7 @@
                 <div class="unit-selector">
                     <input type="number" id="distInput" value="180" step="any" min="0">
                     <select id="distUnit">
-                        <option value="MN" selected>MN (Millas N.)</option>
+                        <option value="MN" selected>MN (Millas Nauticas)</option>
                         <option value="KM">KM (Kilómetros)</option>
                     </select>
                 </div>
@@ -323,7 +323,7 @@
         </div>
 
         <button class="btn-calculate" onclick="calcularEstima()">
-            <span>⏱️</span> CALCULAR ETA Y TIEMPOS
+            <span>⏱️</span> CALCULAR ETA
         </button>
 
         <div class="results-panel">
@@ -337,7 +337,7 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-label">Velocidad Efectiva</div>
+                    <div class="stat-label">Velocidad</div>
                     <div class="stat-value" id="resSpeedNts">0 Kts</div>
                     <div class="stat-sub" id="resSpeedKmh">0 km/h</div>
                 </div>
@@ -357,7 +357,7 @@
         </div>
 
         <div style="margin-top: 15px; text-align: right;">
-            <button class="btn" style="background: #e2e8f0; color: #475569;" onclick="establecerFechaActual()">Usar Fecha/Hora Actual</button>
+            <button class="btn" style="background: #e2e8f0; color: #475569;" onclick="establecerFechaActual()"></button>
         </div>
     </div>
 
@@ -389,7 +389,7 @@
     </div>
 
     <footer>
-        Sistema Unificado de Tráfico Marítimo & Herramientas Operativas
+        Servicio de Tráfico Marítimo - Herramientas Operativas
     </footer>
 </div>
 
@@ -731,4 +731,5 @@
 </script>
 
 </body>
+</html>
 </html>
