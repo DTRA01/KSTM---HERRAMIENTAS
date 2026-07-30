@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SERVICIO DE TRÁFICO MARÍTIMO</title>
+    <style>
+        :root {
+            --header-bg: #07101e;
+            --primary: #1b365d;
+            --primary-hover: #132744;
+            --secondary: #2b5b84;
+            --accent: #d97706;
+            --bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --danger: #c0392b;
+            --danger-hover: #962d22;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 30px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+        /* Banner Encabezado Principal */
+        .top-header {
+            width: 100%;
+            background: linear-gradient(135deg, #050b14 0%, var(--header-bg) 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 24px 20px;
+            border-bottom: 4px solid var(--accent);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 25px;
+        }
+
+        .top-header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .top-header p {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .container { width: 100%; max-width: 1100px; background: var(--card-bg); margin: 0 auto; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+
+        /* Navegación por pestañas */
+        .tabs-nav { display: flex; gap: 8px; border-bottom: 2px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { background: #e2e8f0; border: none; padding: 12px 20px; font-size: 0.9rem; font-weight: 700; color: var(--primary); border-radius: 6px 6px 0 0; cursor: pointer; transition: all 0.2s; }
+        .tab-btn:hover { background: #cbd5e1; }
+        .tab-btn.active { background: var(--primary); color: white; border-bottom: 3px solid var(--accent); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Tab 1: Polígono KML */
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+        th { background-color: var(--primary); color: white; font-weight: 600; font-size: 13px; }
+        input, select { padding: 8px; width: 88%; border: 1px solid var(--border); border-radius: 4px; text-align: center; font-size: 13px; box-sizing: border-box; background: #f8fafc; }
+        input[type="text"] { text-align: left; width: 95%; }
+        
+        .btn { color: white; border: none; padding: 10px 15px; font-size: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px; margin-bottom: 10px; }
+        .btn-gen { background-color: var(--success); }
+        .btn-gen:hover { background-color: var(--success-hover); }
+        .btn-add { background-color: var(--secondary); }
+        .btn-add:hover { background-color: #2471a3; }
+        .btn-rem { background-color: var(--danger); }
+        .btn-rem:hover { background-color: var(--danger-hover); }
+        
+        .opciones-kml { background: #f8fafc; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-top: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        .opciones-kml label { font-weight: bold; font-size: 14px; color: var(--primary); }
+        .opciones-kml select { width: auto; padding: 6px 12px; }
+
+        /* Tab 2: Conversor Coordenadas */
+        .grid-dms { display: grid; grid-template-columns: 1fr 1fr 1fr 80px; gap: 8px; align-items: center; margin-bottom: 15px; }
+        .grid-dd { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group-conv { display: flex; flex-direction: column; gap: 4px; }
+        .form-group-conv label { font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; }
+        .btn-action { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-bottom: 20px; }
+        .btn-action:hover { background: var(--primary-hover); }
+        .result-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; text-align: center; }
+        .result-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-bottom: 5px; }
+        .result-value { font-size: 1.2rem; font-weight: 700; color: var(--success); font-family: monospace; }
+
+        /* Tab 3: Estima Marítima */
+        .grid-estima { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 650px) { .grid-estima { grid-template-columns: 1fr; } }
+        .unit-selector { display: flex; gap: 8px; }
+        .unit-selector input { flex: 2; }
+        .unit-selector select { flex: 1; min-width: 110px; }
+        .btn-calculate { width: 100%; margin-top: 10px; margin-bottom: 25px; padding: 14px; background-color: var(--success); color: white; border: none; border-radius: 6px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-calculate:hover { background-color: var(--success-hover); }
+        .results-panel { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stat-card { background: white; padding: 15px; border-radius: 6px; border-left: 4px solid var(--secondary); box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .stat-card.highlight { border-left-color: var(--accent); background: #fffdfa; }
+        .stat-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
+        .stat-card.highlight .stat-value { color: #b45309; }
+        .stat-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+        /* Tab 4: Conversor Video */
+        .drop-zone { border: 2px dashed var(--secondary); border-radius: 8px; padding: 35px 20px; text-align: center; background: #f8fafc; cursor: pointer; }
+        .drop-zone:hover { background: #f1f5f9; border-color: var(--accent); }
+        .file-info { margin-top: 15px; padding: 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; display: none; font-size: 0.9rem; }
+        .btn-convert { width: 100%; margin-top: 20px; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 700; cursor: pointer; display: none; }
+        .btn-convert:hover { background: var(--primary-hover); }
+        .btn-convert:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .progress-container { margin-top: 20px; display: none; text-align: center; }
+        .progress-bar-bg { width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; margin-bottom: 8px; }
+        .progress-bar-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; }
+        .result-container-vid { margin-top: 20px; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; text-align: center; display: none; }
+        video { width: 100%; max-height: 250px; border-radius: 6px; margin-bottom: 15px; background: black; }
+        .btn-download { display: inline-block; padding: 10px 20px; background: var(--success); color: white; text-decoration: none; border-radius: 6px; font-weight: 700; }
+
+        footer { text-align: center; padding-top: 20px; margin-top: 20px; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<!-- ENCABEZADO SOLICITADO -->
+<header class="top-header">
+    <h1>SERVICIO DE TRÁFICO MARÍTIMO</h1>
+    <p>HERRAMIENTAS OPERATIVAS</p>
+</header>
+
+<div class="container">
+    <!-- NAVEGACIÓN POR PESTAÑAS -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="openTab(event, 'tab-kml')">📌 Polígono KML</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-coords')">🗺️ Conversor Coordenadas</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-estima')">🧭 Navegación y Estima</button>
+        <button class="tab-btn" onclick="openTab(event, 'tab-video')">🎬 Conversor Video MP4</button>
+    </div>
+
+    <!-- TAB 1: POLIGONO KML -->
+    <div id="tab-kml" class="tab-content active">
+        <p style="color: #555; font-size: 14px; margin-bottom: 15px;">Ingrese los puntos del área en formato Grados, Minutos y Segundos. Seleccione el color deseado para el polígono y presione el botón verde para descargar el archivo directo para Google Earth.</p>
+        
+        <table id="tabla-puntos">
+            <thead>
+                <tr>
+                    <th style="width: 12%;">PUNTO</th>
+                    <th>LAT GRADOS</th>
+                    <th>LAT MINUTOS</th>
+                    <th>LAT SEGUNDOS</th>
+                    <th style="width: 8%;">HEMI</th>
+                    <th>LON GRADOS</th>
+                    <th>LON MINUTOS</th>
+                    <th>LON SEGUNDOS</th>
+                    <th style="width: 8%;">HEMI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" value="PSN 1"></td>
+                    <td><input type="number" value="47"></td>
+                    <td><input type="number" value="46"></td>
+                    <td><input type="number" step="any" value="0.6"></td>
+                    <td><select><option value="S" selected>S</option><option value="N">N</option></select></td>
+                    <td><input type="number" value="61"></td>
+                    <td><input type="number" value="40"></td>
+                    <td><input type="number" step="any" value="39.0"></td>
+                    <td><select><option value="W" selected>W</option><option value="E">E</option></select></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="PSN 2"></td>
+                    <td><input type="number" value="47"></td>
+                    <td><input type="number" value="3"></td>
+                    <td><input type="number" step="any" value="22.8"></td>
+                    <td><select><option value="S" selected>S</option><option value="N">N</option></select></td>
+                    <td><input type="number" value="61"></td>
+                    <td><input type="number" value="59"></td>
+                    <td><input type="number" step="any" value="37.8"></td>
+                    <td><select><option value="W" selected>W</option><option value="E">E</option></select></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="PSN 3"></td>
+                    <td><input type="number" value="46"></td>
+                    <td><input type="number" value="56"></td>
+                    <td><input type="number" step="any" value="0.6"></td>
+                    <td><select><option value="S" selected>S</option><option value="N">N</option></select></td>
+                    <td><input type="number" value="61"></td>
+                    <td><input type="number" value="28"></td>
+                    <td><input type="number" step="any" value="33.0"></td>
+                    <td><select><option value="W" selected>W</option><option value="E">E</option></select></td>
+                </tr>
+                <tr>
+                    <td><input type="text" value="PSN 4"></td>
+                    <td><input type="number" value="47"></td>
+                    <td><input type="number" value="38"></td>
+                    <td><input type="number" step="any" value="57.0"></td>
+                    <td><select><option value="S" selected>S</option><option value="N">N</option></select></td>
+                    <td><input type="number" value="61"></td>
+                    <td><input type="number" value="11"></td>
+                    <td><input type="number" step="any" value="24.6"></td>
+                    <td><select><option value="W" selected>W</option><option value="E">E</option></select></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="opciones-kml">
+            <label for="color-poligono">🎨 Color del Polígono:</label>
+            <select id="color-poligono">
+                <option value="verde" selected>Verde Línea / Relleno Transparente</option>
+                <option value="rojo">Rojo Línea / Relleno Transparente</option>
+                <option value="azul">Azul Línea / Relleno Transparente</option>
+                <option value="amarillo">Amarillo Línea / Relleno Transparente</option>
+                <option value="naranja">Naranja Línea / Relleno Transparente</option>
+            </select>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-add" onclick="agregarFila()">+ Agregar Punto</button>
+            <button class="btn btn-rem" onclick="quitarFila()">- Quitar Último Punto</button>
+            <button class="btn btn-gen" onclick="descargarKML()">📥 Generar KML</button>
+        </div>
+    </div>
+
+    <!-- TAB 2: CONVERSOR DE COORDENADAS -->
+    <div id="tab-coords" class="tab-content">
+        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 15px;">1. Grados/Min/Seg (DMS) ➔ Decimales (DD)</h2>
+        
+        <label style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase;">Latitud</label>
+        <div class="grid-dms">
+            <input type="number" id="latDeg" placeholder="Grados (°)" value="40">
+            <input type="number" id="latMin" placeholder="Min (')" value="26">
+            <input type="number" id="latSec" placeholder="Seg (&quot;)" value="46">
+            <select id="latDir">
+                <option value="N">N (Norte)</option>
+                <option value="S">S (Sur)</option>
+            </select>
+        </div>
+
+        <label style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-transform: uppercase;">Longitud</label>
+        <div class="grid-dms">
+            <input type="number" id="lonDeg" placeholder="Grados (°)" value="3">
+            <input type="number" id="lonMin" placeholder="Min (')" value="42">
+            <input type="number" id="lonSec" placeholder="Seg (&quot;)" value="55">
+            <select id="lonDir">
+                <option value="E">E (Este)</option>
+                <option value="W" selected>O/W (Oeste)</option>
+            </select>
+        </div>
+
+        <button class="btn-action" onclick="dmsADecimal()">Convertir a Decimales</button>
+
+        <div class="result-box" style="margin-bottom: 30px;">
+            <div class="result-title">Coordenadas Decimales (Lat, Lon):</div>
+            <div class="result-value" id="resDecimal">0.000000, 0.000000</div>
+        </div>
+
+        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-top: 1px solid var(--border); padding-top: 20px;">2. Decimales (DD) ➔ Grados/Min/Seg (DMS)</h2>
+        
+        <div class="grid-dd">
+            <div class="form-group-conv">
+                <label>Latitud Decimal</label>
+                <input type="number" step="any" id="inputLatDec" placeholder="Ej: -34.6037">
+            </div>
+            <div class="form-group-conv">
+                <label>Longitud Decimal</label>
+                <input type="number" step="any" id="inputLonDec" placeholder="Ej: -58.3816">
+            </div>
+        </div>
+
+        <button class="btn-action" onclick="decimalADms()">Convertir a DMS</button>
+
+        <div class="result-box">
+            <div class="result-title">Coordenadas DMS:</div>
+            <div class="result-value" id="resDMS">0° 0' 0" N, 0° 0' 0" E</div>
+        </div>
+    </div>
+
+    <!-- TAB 3: ESTIMA MARÍTIMA -->
+    <div id="tab-estima" class="tab-content">
+        <div class="grid-estima">
+            <div class="form-group-conv">
+                <label>Distancia a Navegar</label>
+                <div class="unit-selector">
+                    <input type="number" id="distInput" value="180" step="any" min="0">
+                    <select id="distUnit">
+                        <option value="MN" selected>MN (Millas N.)</option>
+                        <option value="KM">KM (Kilómetros)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group-conv">
+                <label>Velocidad de Navegación</label>
+                <div class="unit-selector">
+                    <input type="number" id="speedInput" value="10" step="any" min="0.1">
+                    <select id="speedUnit">
+                        <option value="NTS" selected>Nudos (Kts)</option>
+                        <option value="KMH">km/h</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group-conv">
+                <label>Fecha y Hora de Salida (ETD)</label>
+                <input type="datetime-local" id="departureTime">
+            </div>
+
+            <div class="form-group-conv">
+                <label>Zona Horaria de Referencia</label>
+                <select id="timeZoneType">
+                    <option value="LOCAL" selected>Hora Local (LT)</option>
+                    <option value="UTC">Hora UTC (ZULU)</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-calculate" onclick="calcularEstima()">
+            <span>⏱️</span> CALCULAR ETA Y TIEMPOS
+        </button>
+
+        <div class="results-panel">
+            <div style="font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 8px;">📊 Resumen del Viaje / Estima</div>
+            
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Distancia Convertida</div>
+                    <div class="stat-value" id="resDistMN">0 MN</div>
+                    <div class="stat-sub" id="resDistKM">0 km</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Velocidad Efectiva</div>
+                    <div class="stat-value" id="resSpeedNts">0 Kts</div>
+                    <div class="stat-sub" id="resSpeedKmh">0 km/h</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Tiempo de Navegación</div>
+                    <div class="stat-value" id="resTimeFormatted">0h 00m</div>
+                    <div class="stat-sub" id="resTimeHours">0.00 horas totales</div>
+                </div>
+
+                <div class="stat-card highlight">
+                    <div class="stat-label">Estimación de Arribo (ETA)</div>
+                    <div class="stat-value" id="resETA">--/--/---- --:--</div>
+                    <div class="stat-sub" id="resETADays">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 15px; text-align: right;">
+            <button class="btn" style="background: #e2e8f0; color: #475569;" onclick="establecerFechaActual()">Usar Fecha/Hora Actual</button>
+        </div>
+    </div>
+
+    <!-- TAB 4: CONVERSOR DE VIDEO -->
+    <div id="tab-video" class="tab-content">
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div style="font-size: 2rem;">📁</div>
+            <div style="font-weight: 600; color: var(--primary);">Haz clic para seleccionar un video</div>
+            <input type="file" id="fileInput" accept="video/*" style="display:none">
+        </div>
+
+        <div class="file-info" id="fileInfo"></div>
+
+        <button class="btn-convert" id="convertBtn" onclick="convertirVideo()">Convertir Video a MP4</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+            <span id="statusText" style="font-size: 0.85rem; color: var(--text-muted);">Procesando cuadros de video...</span>
+        </div>
+
+        <div class="result-container-vid" id="resultContainer">
+            <h3 style="color: var(--success); margin-bottom: 10px;">¡Conversión Lista! 🎉</h3>
+            <video id="videoPreview" controls></video>
+            <br>
+            <a id="downloadBtn" class="btn-download">📥 Descargar Video Convertido</a>
+        </div>
+    </div>
+
+    <footer>
+        Sistema Unificado de Tráfico Marítimo & Herramientas Operativas
+    </footer>
+</div>
+
+<script>
+    // Control de Pestañas
+    function openTab(evt, tabName) {
+        const tabcontents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < tabcontents.length; i++) {
+            tabcontents[i].classList.remove("active");
+        }
+        const tablinks = document.getElementsByClassName("tab-btn");
+        for (let i = 0; i < tablinks.length; i++) {
+            tablinks[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    /* LÓGICA 1: POLÍGONO KML */
+    function agregarFila() {
+        const tbody = document.querySelector("#tabla-puntos tbody");
+        const rowCount = tbody.rows.length + 1;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><input type="text" value="PSN ${rowCount}"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" step="any" placeholder="0.0"></td>
+            <td><select><option value="S" selected>S</option><option value="N">N</option></select></td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" step="any" placeholder="0.0"></td>
+            <td><select><option value="W" selected>W</option><option value="E">E</option></select></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function quitarFila() {
+        const tbody = document.querySelector("#tabla-puntos tbody");
+        if (tbody.rows.length > 3) {
+            tbody.removeChild(tbody.lastChild);
+        } else {
+            alert("El polígono necesita un mínimo de 3 puntos.");
+        }
+    }
+
+    function convertirADecimal(grados, minutos, segundos, hemisferio) {
+        let g = parseFloat(grados) || 0;
+        let m = parseFloat(minutos) || 0;
+        let s = parseFloat(segundos) || 0;
+        let decimal = g + (m / 60) + (s / 3600);
+        if (hemisferio === "S" || hemisferio === "W") decimal = -decimal;
+        return decimal.toFixed(6);
+    }
+
+    function obtenerCodigosColor(colorSeleccionado) {
+        switch(colorSeleccionado) {
+            case 'rojo': return { linea: 'ff0000ff', relleno: '400000ff' };
+            case 'azul': return { linea: 'ffff0000', relleno: '40ff0000' };
+            case 'amarillo': return { linea: 'ff00ffff', relleno: '4000ffff' };
+            case 'naranja': return { linea: 'ff00a5ff', relleno: '4000a5ff' };
+            case 'verde':
+            default: return { linea: 'ff00ff00', relleno: '4000ff00' };
+        }
+    }
+
+    function descargarKML() {
+        const rows = document.querySelectorAll("#tabla-puntos tbody tr");
+        let coordenadasKML = [];
+        let primerPunto = "";
+
+        for (let i = 0; i < rows.length; i++) {
+            const inputs = rows[i].querySelectorAll("input, select");
+            const gLat = inputs[1].value, mLat = inputs[2].value, sLat = inputs[3].value, hLat = inputs[4].value;
+            const gLon = inputs[5].value, mLon = inputs[6].value, sLon = inputs[7].value, hLon = inputs[8].value;
+
+            if (!gLat || !gLon) continue;
+
+            const latDec = convertirADecimal(gLat, mLat, sLat, hLat);
+            const lonDec = convertirADecimal(gLon, mLon, sLon, hLon);
+            const ptoStr = `${lonDec},${latDec},0`;
+            coordenadasKML.push(ptoStr);
+
+            if (i === 0) primerPunto = ptoStr;
+        }
+
+        if (coordenadasKML.length < 3) {
+            alert("Por favor ingrese al menos 3 puntos válidos.");
+            return;
+        }
+
+        coordenadasKML.push(primerPunto);
+        const codigosColor = obtenerCodigosColor(document.getElementById("color-poligono").value);
+
+        const kmlCompleto = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Poligono de Operaciones</name>
+    <Style id="estiloPoligono">
+      <LineStyle><color>${codigosColor.linea}</color><width>3</width></LineStyle>
+      <PolyStyle><color>${codigosColor.relleno}</color></PolyStyle>
+    </Style>
+    <Placemark>
+      <name>Area Delimitada</name>
+      <styleUrl>#estiloPoligono</styleUrl>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>${coordenadasKML.join(" ")}</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>`;
+        
+        const blob = new Blob([kmlCompleto], { type: "application/vnd.google-earth.kml+xml" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Poligono_Area.kml";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    /* LÓGICA 2: CONVERSOR COORDENADAS */
+    function dmsADecimal() {
+        const latD = parseFloat(document.getElementById('latDeg').value) || 0;
+        const latM = parseFloat(document.getElementById('latMin').value) || 0;
+        const latS = parseFloat(document.getElementById('latSec').value) || 0;
+        const latDir = document.getElementById('latDir').value;
+
+        const lonD = parseFloat(document.getElementById('lonDeg').value) || 0;
+        const lonM = parseFloat(document.getElementById('lonMin').value) || 0;
+        const lonS = parseFloat(document.getElementById('lonSec').value) || 0;
+        const lonDir = document.getElementById('lonDir').value;
+
+        let latDec = latD + (latM / 60) + (latS / 3600);
+        if (latDir === 'S') latDec = -latDec;
+
+        let lonDec = lonD + (lonM / 60) + (lonS / 3600);
+        if (lonDir === 'W') lonDec = -lonDec;
+
+        document.getElementById('resDecimal').innerText = `${latDec.toFixed(6)}, ${lonDec.toFixed(6)}`;
+    }
+
+    function decimalADms() {
+        const lat = parseFloat(document.getElementById('inputLatDec').value);
+        const lon = parseFloat(document.getElementById('inputLonDec').value);
+
+        if (isNaN(lat) || isNaN(lon)) {
+            alert("Por favor ingresa latitud y longitud decimales válidas.");
+            return;
+        }
+
+        document.getElementById('resDMS').innerText = `${convertirGradosADMS(lat, true)}, ${convertirGradosADMS(lon, false)}`;
+    }
+
+    function convertirGradosADMS(val, esLatitud) {
+        const direccion = esLatitud ? (val >= 0 ? 'N' : 'S') : (val >= 0 ? 'E' : 'W');
+        const absVal = Math.abs(val);
+        const grados = Math.floor(absVal);
+        const minutosFlotantes = (absVal - grados) * 60;
+        const minutos = Math.floor(minutosFlotantes);
+        const segundos = ((minutosFlotantes - minutos) * 60).toFixed(2);
+        return `${grados}° ${minutos}' ${segundos}" ${direccion}`;
+    }
+
+    /* LÓGICA 3: ESTIMA MARÍTIMA */
+    function establecerFechaActual() {
+        const ahora = new Date();
+        const year = ahora.getFullYear();
+        const month = String(ahora.getMonth() + 1).padStart(2, '0');
+        const day = String(ahora.getDate()).padStart(2, '0');
+        const hours = String(ahora.getHours()).padStart(2, '0');
+        const minutes = String(ahora.getMinutes()).padStart(2, '0');
+        document.getElementById('departureTime').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
+    function calcularEstima() {
+        const distInput = parseFloat(document.getElementById('distInput').value) || 0;
+        const distUnit = document.getElementById('distUnit').value;
+        const speedInput = parseFloat(document.getElementById('speedInput').value) || 0;
+        const speedUnit = document.getElementById('speedUnit').value;
+        const depTimeValue = document.getElementById('departureTime').value;
+        const timeZoneType = document.getElementById('timeZoneType').value;
+
+        let distMN = distUnit === 'MN' ? distInput : distInput / 1.852;
+        let distKM = distUnit === 'MN' ? distInput * 1.852 : distInput;
+
+        let speedNts = speedUnit === 'NTS' ? speedInput : speedInput / 1.852;
+        let speedKmh = speedUnit === 'NTS' ? speedInput * 1.852 : speedInput;
+
+        document.getElementById('resDistMN').innerText = distMN.toFixed(2) + ' MN';
+        document.getElementById('resDistKM').innerText = distKM.toFixed(2) + ' km';
+        document.getElementById('resSpeedNts').innerText = speedNts.toFixed(2) + ' Kts';
+        document.getElementById('resSpeedKmh').innerText = speedKmh.toFixed(2) + ' km/h';
+
+        if (speedNts <= 0 || distMN <= 0) {
+            document.getElementById('resTimeFormatted').innerText = '0h 00m';
+            document.getElementById('resTimeHours').innerText = '0.00 horas totales';
+            document.getElementById('resETA').innerText = '--/--/---- --:--';
+            document.getElementById('resETADays').innerText = 'Ingrese velocidad válida';
+            return;
+        }
+
+        const totalHours = distMN / speedNts;
+        const totalMinutes = Math.round(totalHours * 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+
+        document.getElementById('resTimeFormatted').innerText = days > 0 ? `${days}d ${remainingHours}h ${mins}m` : `${hours}h ${mins}m`;
+        document.getElementById('resTimeHours').innerText = `${totalHours.toFixed(2)} horas totales`;
+
+        if (depTimeValue) {
+            let depDate;
+            if (timeZoneType === 'UTC') {
+                const [datePart, timePart] = depTimeValue.split('T');
+                const [year, month, day] = datePart.split('-');
+                const [h, m] = timePart.split(':');
+                depDate = new Date(Date.UTC(year, month - 1, day, h, m));
+            } else {
+                depDate = new Date(depTimeValue);
+            }
+
+            const etaDate = new Date(depDate.getTime() + totalMinutes * 60 * 1000);
+            let dia, mes, anio, h, m;
+
+            if (timeZoneType === 'UTC') {
+                dia = String(etaDate.getUTCDate()).padStart(2, '0');
+                mes = String(etaDate.getUTCMonth() + 1).padStart(2, '0');
+                anio = etaDate.getUTCFullYear();
+                h = String(etaDate.getUTCHours()).padStart(2, '0');
+                m = String(etaDate.getUTCMinutes()).padStart(2, '0');
+            } else {
+                dia = String(etaDate.getDate()).padStart(2, '0');
+                mes = String(etaDate.getMonth() + 1).padStart(2, '0');
+                anio = etaDate.getFullYear();
+                h = String(etaDate.getHours()).padStart(2, '0');
+                m = String(etaDate.getMinutes()).padStart(2, '0');
+            }
+
+            const tzLabel = timeZoneType === 'UTC' ? ' UTC' : ' (Local)';
+            document.getElementById('resETA').innerText = `${dia}/${mes}/${anio} ${h}:${m}${tzLabel}`;
+            document.getElementById('resETADays').innerText = days > 0 ? `Llegada en +${days} día(s)` : 'Llegada el mismo día';
+        } else {
+            document.getElementById('resETA').innerText = 'Seleccione hora salida';
+            document.getElementById('resETADays').innerText = '--';
+        }
+    }
+
+    /* LÓGICA 4: CONVERSOR DE VIDEO */
+    let selectedFile = null;
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const statusText = document.getElementById('statusText');
+    const resultContainer = document.getElementById('resultContainer');
+    const videoPreview = document.getElementById('videoPreview');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            selectedFile = e.target.files[0];
+            fileInfo.innerText = `Archivo: ${selectedFile.name} (${(selectedFile.size / (1024*1024)).toFixed(2)} MB)`;
+            fileInfo.style.display = 'block';
+            convertBtn.style.display = 'block';
+            resultContainer.style.display = 'none';
+        }
+    });
+
+    async function convertirVideo() {
+        if (!selectedFile) return;
+
+        convertBtn.disabled = true;
+        progressContainer.style.display = 'block';
+        resultContainer.style.display = 'none';
+        statusText.innerText = 'Cargando video en memoria...';
+
+        const tempVideo = document.createElement('video');
+        tempVideo.src = URL.createObjectURL(selectedFile);
+        tempVideo.muted = true;
+
+        await new Promise(resolve => tempVideo.onloadedmetadata = resolve);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = tempVideo.videoWidth || 1280;
+        canvas.height = tempVideo.videoHeight || 720;
+        const ctx = canvas.getContext('2d');
+
+        const stream = canvas.captureStream(30);
+        let mimeType = 'video/mp4;codecs=avc1';
+        if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+
+        const mediaRecorder = new MediaRecorder(stream, { mimeType });
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+            const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+            const blob = new Blob(chunks, { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            
+            videoPreview.src = url;
+            downloadBtn.href = url;
+            downloadBtn.download = `video_convertido.${ext}`;
+
+            progressContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+            convertBtn.disabled = false;
+        };
+
+        mediaRecorder.start();
+        tempVideo.play();
+
+        function renderFrame() {
+            if (!tempVideo.ended && !tempVideo.paused) {
+                ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
+                const pct = Math.round((tempVideo.currentTime / tempVideo.duration) * 100);
+                progressBar.style.width = `${pct}%`;
+                statusText.innerText = `Convertiendo: ${pct}%`;
+                requestAnimationFrame(renderFrame);
+            } else {
+                mediaRecorder.stop();
+            }
+        }
+        renderFrame();
+    }
+
+    window.onload = function() {
+        establecerFechaActual();
+    };
+</script>
+
+</body>
+</html>
